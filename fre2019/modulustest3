@@ -1,0 +1,32 @@
+pi=3.14159265359
+
+sign = -1
+pth = 5*pi/180
+
+label "postLed"
+	turnang = sign*165
+	turnrad = 0.35
+	dturnrad = sin(pth)*0.2
+    eval dturnrad
+
+	if (abs(pth) < pi/2) "NoTHCorrection"
+    dturnrad = dturnrad*(-1)
+
+	if (pth<0) "adjustUP"
+	pth = pth - pi
+	goto "NoTHCorrection"
+
+
+label "adjustUP"
+	pth = pth + pi
+
+
+%%%% Deciding the values of the turn radius and turn angle %%%%
+label "NoTHCorrection"
+    eval pth*180/pi
+    eval turnang
+	turnang = turnang - pth*180/pi
+	turnrad = turnrad - sign*dturnrad/2
+	eval pth*180/pi
+	eval turnrad
+	eval turnang

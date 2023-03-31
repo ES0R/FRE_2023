@@ -1,0 +1,17 @@
+pi=3.14159265359
+
+k1 = 0.9
+k2 = 0.1
+
+th = -177*pi/180
+pth = 179*pi/180
+
+
+%sinAv = (sin(th)+sin(pth))/2
+%cosAv = (cos(th)+cos(pth))/2
+
+sinAv = (sin(th)*k1+sin(pth)*k2)/2
+cosAv = (cos(th)*k1+cos(pth)*k2)/2
+
+odoT = atan2(sinAv,cosAv)*180/pi
+eval odoT

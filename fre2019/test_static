@@ -1,0 +1,109 @@
+%%%%%%%%%%%%%%%%%%%%%%% task1 %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% DTUni-Corn %%%%%%%%%%%%%%%%%%%%%
+
+
+fwdLaser = 1
+fwdLasX = 0.46
+
+pi=3.141592
+
+
+%%%%%%%%%%%% variables %%%%%%%%%%%%%
+id= 0
+rowStartX = $odox
+rowStartY = $odoy
+turnfinishedX = $odox
+
+Las = fwdLaser
+lasX = fwdLasX
+
+x=0
+y=0
+th=0
+
+xlas=0
+ylas=0
+thlas=0
+
+holetype=0
+
+
+%%%%%%%%%%%% plugin variables %%%%%%%%%%%%%
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+laser "var lobst.minPointsInLine=8"
+laser "var lobst.enableSplit=true"
+laser "var lobst.minsplitcnt=2"
+laser "var lobst.splitdist=0.5"
+laser "var rosebot.lineAngleInterval='-105,-75'"
+laser "var rosebot.lineRmax=1.0"
+laser "var rosebot.holeAngleAllowed=180"
+
+wait 1
+
+
+%%%%%%%%%%%% holetypes %%%%%%%%%%%%%
+% 0 = dead end
+% 1 = free space
+% 2 = right wall
+% 3 = left wall
+% 4 = hole
+% 5 = ignore hole
+
+
+%%%%%%%%%%%% start logging %%%%%%%%%%%%%
+log "$time" "x" "y" "th" "xlas" "ylas" "thlas" "holetype"
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+
+%%%%%%%%%%%%%%%%%%ini
+label "ini"
+	wait 1
+	eval $joyoverride
+	laser "rosebot"
+	backbut = $joyoverride
+	setoutput "ledMode" 32
+	if (backbut == 1) "ini"
+	goto "start"
+
+
+%%%%%%%%%%%% start %%%%%%%%%%%%%
+label "start"
+	setoutput "ledMode" 0
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "end"
+
+	laser "rosebot"
+	id = id + 1
+	stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+	laser "$string"
+	wait 1 :($l9==id)
+
+	x=$l4
+	y=$l5
+	th=$l6
+	holetype = $l7
+
+	xlas=$l2
+	ylas=$l3
+	thlas=$l8
+
+	wait 1
+
+	goto "start"
+
+
+%%%%%%%%%%%% end %%%%%%%%%%%%%
+label "end"
+	laser "scanset logclose"
+	laser "odopose log=false"

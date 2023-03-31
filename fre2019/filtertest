@@ -1,0 +1,56 @@
+pi=3.14159265359
+
+k1 = 1
+k2 = 0
+
+th = 2*pi/180
+pth = -3*pi/180
+
+%%%%%%%%%%%% rowdrive %%%%%%%%%%%%%
+label "rowdrive"
+	disto = 1
+
+	%%FILTER%%
+	sinAv = (sin(th)*k1+sin(pth)*k2)/2
+	cosAv = (cos(th)*k1+cos(pth)*k2)/2
+	steerTh = atan2(sinAv,cosAv)*180/pi
+	%%
+    eval steerTh
+
+	dth = pth-th
+	dth = sqrt(dth*dth)
+
+	if (dth > pi/2) "adjustDTH"
+
+	goto "driveon"
+
+
+label "adjustDTH"
+	dth = dth - 2*pi
+	dth = sqrt(dth*dth)
+
+label "driveon"
+	if (disto < 0.5) "startdrive"
+	if (dth < 6*pi/180) "driveon2"
+
+	Vel = slowVel
+	
+
+label "driveon2"
+	disti = 0
+
+	if (disti < 0.5) "driveon3"
+	disti=0
+
+
+label "driveon3"
+	%driveon x y th "rad" @v Vel :($drivendist>0.03)
+	%driveon x y steerTh "rad" @v Vel :($drivendist>0.03)
+    eval 1
+    eval steerTh
+
+label "startdrive"
+	%driveon x y th "rad" @v Vel :($drivendist>0.03)
+	%driveon x y steerTh "rad" @v Vel :($drivendist>0.03)
+    eval 0
+    eval steerTh

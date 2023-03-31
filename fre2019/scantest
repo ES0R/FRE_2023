@@ -1,0 +1,4 @@
+laser "scanpush cmd='zoneobst'"
+wait 1
+log "$time" "$l3" "$l4"
+wait 10

@@ -1,0 +1,87 @@
+
+
+stringcat "rosebot obstacle2 xPos="0.8" yPos="0.3" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+
+stringcat "rosebot obstacle2 xPos="0.8" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.9" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.7" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+
+
+stringcat "rosebot obstacle2 xPos="0.7" yPos="0.2" type="2" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.7" yPos="0.2" type="2" "
+wait 1
+laser "$string" 
+wait 1
+
+
+stringcat "rosebot obstacle2 xPos="0.7" yPos="0.2" type="2" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.7" yPos="0.2" type="2" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+
+
+
+
+
+
+
+
+
+stringcat "rosebot obstacle2 xPos="0.8" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.8" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+
+
+stringcat "rosebot obstacle2 xPos="0.8" yPos="0.2" type="1" "
+wait 1
+laser "$string" 
+wait 1

@@ -1,0 +1,14 @@
+setoutput "cruizreset" 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+wait 3
+eval $odoth
+fwd 1
+stop  
+
+
+eval $odoth
+stop

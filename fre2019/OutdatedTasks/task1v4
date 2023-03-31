@@ -1,0 +1,311 @@
+%%%%%%%%%%%%%%%%%%%%%%% task1 %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% DTUni-Corn %%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%% constants %%%%%%%%%%%%%
+%Startturn: -1 = right, 1 = left
+sign = 1
+
+%turn number of rows-1
+turnlim=15
+
+fwdVel = 1
+preTurnVel = 0.6
+bckVel = -0.5
+slowVel = 0.6
+turnVel = 0.6
+
+fwdLaser = 1
+fwdLasX = 0.46
+
+slowdist= 11
+
+pi=3.141592
+
+
+%%%%%%%%%%%% variables %%%%%%%%%%%%%
+id= 0
+turncnt= 1
+rowStartX = $odox
+rowStartY = $odoy
+turnfinishedX = $odox
+
+Vel = fwdVel
+Las = fwdLaser
+lasX = fwdLasX
+
+x=0
+y=0
+th=0
+dth = 0
+
+xlas=0
+ylas=0
+thlas=0
+
+holetype=0
+
+px=0
+py=0
+pth=0
+
+xCurvei = 0
+yCurvei = 0
+disti = 0
+startup = 1
+
+%%%%%%%%%%%% plugin variables %%%%%%%%%%%%%
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+laser "var lobst.minPointsInLine=8"
+laser "var lobst.enableSplit=true"
+laser "var lobst.minsplitcnt=2"
+laser "var lobst.splitdist=0.5"
+laser "var rosebot.lineAngleInterval='-105,-75'"
+laser "var rosebot.lineRmax=1.0"
+laser "var rosebot.holeAngleAllowed=180"
+
+wait 1
+
+
+%%%%%%%%%%%% holetypes %%%%%%%%%%%%%
+% 0 = dead end
+% 1 = free space
+% 2 = right wall
+% 3 = left wall
+% 4 = hole
+% 5 = ignore hole
+
+
+%%%%%%%%%%%% start logging %%%%%%%%%%%%%
+log "$time" "x" "y" "th" "xlas" "ylas" "thlas" "holetype" "Vel" "disti" "dth"
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+
+%%%%%%%%%%%%%%%%%%ini
+label "ini"
+	wait 1
+	eval $joyoverride
+	laser "rosebot"
+	backbut = $joyoverride
+	setoutput "ledMode" 32
+	if (backbut == 1) "ini"
+	if (startup == 1) "StartupDrive"
+	goto "start"
+
+label "StartupDrive"
+	startup = 0
+	drive @v0.4 :($drivendist > 0.3)|($cmdtime>2)
+
+%%%%%%%%%%%% start %%%%%%%%%%%%%
+label "start"
+	setoutput "ledMode" 0
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	laser "rosebot"
+	id = id + 1
+	stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+	laser "$string"
+	wait 1 :($l9==id)
+
+	x=$l4
+	y=$l5
+	th=$l6
+	holetype = $l7
+
+	xlas=$l2
+	ylas=$l3
+	thlas=$l8
+
+	if(holetype == 0) "start"
+
+%%%decide which mode to enter
+switch(holetype)
+	case 1
+		if(turncnt>turnlim) "end"
+		goto "turn"
+	case 2
+		goto "rowdrive"
+	case 3
+		goto "rowdrive"
+	case 4
+		goto "rowdrive"
+	case 5
+		goto "rowdrive"
+	endswitch
+
+	goto "start"
+
+
+%%%%%%%%%%%% rowdrive %%%%%%%%%%%%%
+label "rowdrive"
+	laser "rosebot"
+	xo = $odox-rowStartX
+	yo = $odoy-rowStartY
+	disto = sqrt(xo*xo + yo*yo)
+
+	dth = pth-th
+	dth = sqrt(dth*dth)
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	if (dth > pi/2) "adjustDTH"
+
+	goto "driveon"
+
+
+label "adjustDTH"
+	dth = dth - 2*pi
+	dth = sqrt(dth*dth)
+
+label "driveon"
+	setoutput "ledMode" 0
+	laser "rosebot"
+
+	if (disto < 0.5) "startdrive"
+	if (dth < 6*pi/180) "driveon2"
+
+	xCurvei = $odox
+	yCurvei = $odoy
+	Vel = slowVel
+	
+
+label "driveon2"
+	xi = $odox - xCurvei
+	yi = $odoy - yCurvei
+	disti = sqrt(xi*xi + yi*yi)
+
+	if (disti < 0.5) "driveon3"
+	
+	Vel = fwdVel
+	xCurvei=0
+	yCurvei=0
+	disti=0
+
+
+label "driveon3"
+	driveon x y th "rad" @v Vel :($drivendist>0.03)
+	px=x
+	py=y
+	pth=th
+	goto "start"
+
+
+label "startdrive"
+	driveon x y th "rad" @v slowVel :($drivendist>0.03)
+	px=x
+	py=y
+	pth=th
+	goto "start"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% turn %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "turn"
+	laser "rosebot"
+	driveon px py pth "rad" @v preTurnVel :($drivendist>0.15) %INCREASE FOR OUTDOOR DRIVING	
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	odoDist = $ododist
+
+	if(sign == 1) "labell"
+	if(sign == -1) "labelr"
+
+
+%%%%% turnr led
+label "labelr"
+	setoutput "ledMode" 4
+	goto "postLed"
+
+%%%%% turnl led
+label "labell"
+	setoutput "ledMode" 2
+
+
+label "postLed"
+	turnang = sign*160
+
+	turnr 0.35 turnang @v turnVel :($cmdtime > 20)
+	turnfinishedX = $odox
+
+	%%%turn variables
+	turncnt=turncnt+1
+	sign = 1*sign
+
+	
+%%%Turn loop
+label "turnR"
+	laser "rosebot"
+	id = id + 1
+	stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+	laser "$string"
+	wait 1 :($l9==id)
+
+	%Check for hole or if the robot has turned 180
+	if($l7 == 4) "stopR"
+	if($ododist < odoDist+1)  "turnR"
+	stop
+	wait 2
+	setoutput "ledMode" 16
+	fwd -0.1 @v0.3 :($cmdtime > 10)
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	goto "turnR"
+
+%Hole found
+label "stopR"
+	laser "rosebot"
+	eval $l7
+	eval $odoth
+
+
+	%Set values to default
+	rowStartX = $odox
+	rowStartY = $odoy
+	Vel = fwdVel
+	goto "start"
+
+
+%%%%%%%%%%%% end %%%%%%%%%%%%%
+label "end"
+	setoutput "ledMode" 0
+	play "bender.wav"
+	fwd 0
+	wait 25
+	setoutput "ledMode" 0
+	stop
+	%%%stop logging
+	eval rowStartX
+	eval rowStartY
+	eval xo
+	eval yo
+	eval disto
+
+	laser "scanset logclose"
+	laser "odopose log=false"

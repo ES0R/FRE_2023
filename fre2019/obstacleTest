@@ -1,0 +1,60 @@
+array "x" 15
+array "y" 15
+array "t" 15
+
+%weed
+x[0] = 12.2
+x[1] = 12.3
+x[2] = 12.2
+x[3] = 12.1
+x[4] = 12.2
+
+%obstacle
+x[5] = 15.2
+x[6] = 15.3
+x[7] = 15.2
+x[8] = 15.1
+x[9] = 15.2
+
+%weed
+y[0] = 0.2
+y[1] = 0.3
+y[2] = 0.2
+y[3] = 0.1
+y[4] = 0.2
+
+%obstacle
+y[5] = 0.2
+y[6] = 0.3
+y[7] = 0.2
+y[8] = 0.1
+y[9] = 0.2
+
+%weed
+t[0] = 1
+t[1] = 2
+t[2] = 1
+t[3] = 1
+t[4] = 1
+
+%obstacle
+t[5] = 2
+t[6] = 2
+t[7] = 2
+t[8] = 2
+t[9] = 2
+
+n = 0
+
+label "goback"
+hx = x[n]
+hy = y[n]
+ht = t[n]
+stringcat "rosebot saveObstacles xPos="hx" yPos="hy" type="ht" "
+laser "$string"
+wait 1
+n = n + 1
+if(n < 10) "goback"
+
+wait 3
+laser "rosebot printObstacles"

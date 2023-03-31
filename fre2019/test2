@@ -1,0 +1,12 @@
+setoutput "ledMode" 32
+play "signalonce.wav"
+
+setoutput "ledMode" 0
+
+wait 15
+setoutput "ledMode" 64
+play "signalonce.wav"
+play "signalonce.wav"
+play "signalonce.wav"
+
+setoutput "ledMode" 0

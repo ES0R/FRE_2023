@@ -1,0 +1,12 @@
+vision "hallo"
+wait 5
+
+label "keepLooking"
+wait 1
+eval $vis1
+eval $vis2
+eval $vis3
+eval $vis4
+goto "keepLooking"
+
+wait 100

@@ -1,0 +1,8 @@
+
+
+wait 5
+setoutput "dcMotor" 1
+wait 15
+setoutput "dcMotor" 0
+wait 5
+stop

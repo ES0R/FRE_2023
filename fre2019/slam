@@ -1,0 +1,22 @@
+wait 15.0
+laser "rosebot mapReset"
+%laser "push t='5.0' cmd='rosebot mapUpdate"
+wait 12.0
+
+laser "rosebot mapUpdate"
+
+
+wait 7.0
+laser "rosebot mapUpdate"
+wait 7.0
+laser "rosebot mapUpdate"
+wait 7.0
+laser "rosebot PFreset"
+wait 17.0
+
+laser "push t='1.0' cmd='rosebot SLAM"
+laser "rosebot SLAM"
+wait 10000
+
+stop
+

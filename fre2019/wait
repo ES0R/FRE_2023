@@ -1,0 +1,5 @@
+laser "rosebot PFreset"
+wait 5
+
+laser "push t='0.5' cmd='rosebot SLAM'"
+wait 10000

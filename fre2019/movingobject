@@ -1,0 +1,12 @@
+wait 2
+
+setoutput "cruizreset" 1
+
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+wait 250
+
+laser "scanset logclose"
+laser "odopose log=false"

@@ -1,0 +1,424 @@
+%%%%%%%%%%%%%%%%%%%%%%% task2 %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% DTUMaize %%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%% constants %%%%%%%%%%%%%
+%Startturn: -1 = right, 1 = left
+sign = -1
+
+R = -1
+L = 1
+F = 1000
+plan = 0
+zero = 0
+%turn number of rows-1
+turnlim=15
+
+fwdVel = 0.6
+preTurnVel = 0.6 %0.8
+bckVel = -0.5
+slowVel= 0.4
+coastVel = 0.4
+turnVel = 0.6
+
+fwdLaser = 1
+bckLaser = 0
+
+fwdLasX = 0.46
+bckLasX = -0.17
+
+slowdist= 11
+
+pi=3.141592
+
+
+%%%%%%%%%%%% variables %%%%%%%%%%%%%
+id= 0
+turncnt= 1
+rowStartX = $odox
+rowStartY = $odoy
+turnfinishedX = $odox
+
+Vel = fwdVel
+Las = fwdLaser
+lasX = fwdLasX
+
+x=0
+y=0
+th=0
+
+%stores previous (x,y,th) values for when exiting row
+px=0 
+py=0
+pth=0
+
+firstm = 1
+
+%%%%%%%%%%%% plugin variables %%%%%%%%%%%%%
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+laser "var lobst.minPointsInLine=8"
+laser "var lobst.enableSplit=true"
+laser "var lobst.minsplitcnt=2"
+laser "var lobst.splitdist=0.5"
+laser "var rosebot.lineAngleInterval='-105,-75'"
+laser "var rosebot.lineRmax=1.0"
+laser "var rosebot.holeAngleAllowed=180"
+
+wait 1
+
+
+%%%%%%%%%%%% holetypes %%%%%%%%%%%%%
+% 0 = dead end
+% 1 = free space
+% 2 = right wall
+% 3 = left wall
+% 4 = hole
+% 5 = ignore hole
+
+
+%%%%%%%%%%%% start logging %%%%%%%%%%%%%
+log "$time" "$odox" "$odoy" "$odoth" "x" "y" "th" %"$l4" "$l5" "$l6" "$l7"
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+%command = 2
+%direc = R
+%array "drivePlan" 15
+%drivePlan[0]=2
+%drivePlan[1]=R
+%drivePlan[2]=1
+%drivePlan[3]=R
+%drivePlan[4]=4
+%drivePlan[5]=L
+%drivePlan[6]=2
+%drivePlan[7]=L
+%drivePlan[8]=F
+%drivePlan[9]=F
+%drivePlan[10]=F
+%drivePlan[11]=F
+
+
+command = 1
+direc = 1
+array "drivePlan" 15
+drivePlan[0]=-2
+drivePlan[1]=-1
+drivePlan[2]=1
+drivePlan[3]=2
+drivePlan[4]=F
+drivePlan[5]=F
+drivePlan[6]=F
+drivePlan[7]=F
+drivePlan[8]=F
+drivePlan[9]=F
+drivePlan[10]=F
+drivePlan[11]=F
+
+%%%%%%%%%%%%%%%%%%ini
+label "ini"
+	wait 1
+	eval $joyoverride
+	laser "rosebot"
+	backbut = $joyoverride
+	setoutput "ledMode" 32
+	if (backbut == 1) "ini"
+
+
+%%%%%%%%%%%% start %%%%%%%%%%%%%
+label "start"
+	setoutput "ledMode" 0
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	laser "rosebot"
+	id = id + 1
+	stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+	laser "$string"
+	wait 1 :($l9==id)
+
+	%printing returned values
+	eval $l1
+	eval $l2
+	eval $l3
+	eval $l4
+	eval $l5
+	eval $l6
+	eval $l7
+	eval $l8
+	eval $l9
+	eval id
+
+	x=$l4
+	y=$l5
+	th=$l6
+	holetype = $l7
+	eval holetype
+	eval x
+	eval y
+	eval th
+
+	if(holetype == 0) "start"
+
+%%%decide which mode to enter
+switch(holetype)
+	case 1
+		goto "drivePlan"
+	case 2
+		goto "rowdrive"
+	case 3
+		goto "rowdrive"
+	case 4
+		goto "rowdrive"
+	case 5
+		goto "rowdrive"
+	endswitch
+
+	goto "start"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rowdrive %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "rowdrive"
+	laser "rosebot"
+	xo = $odox-rowStartX
+	yo = $odoy-rowStartY
+	disto = sqrt(xo*xo + yo*yo)
+	eval xo
+	eval yo
+	eval disto
+	if(disto>slowdist) "speedcontrol"
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+label "driveon"
+	setoutput "ledMode" 0
+	laser "rosebot"
+	if (firstm == 0) "startdrive"
+	driveon x y th "rad" @v fwdVel :($drivendist>0.03)
+	px=x
+	py=y
+	pth=th
+	goto "start"
+
+label "startdrive" % NEW
+	driveon x y th "rad" @v slowVel :($drivendist>0.6)
+	firstm = 1
+	px=x
+	py=y
+	pth=th
+	goto "start"
+
+label "speedcontrol" %THIS IS REDUNDANT
+	laser "rosebot"
+	Vel = slowVel
+	goto "driveon"
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% HEADLAND DRIVING %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% drivePlan %%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "drivePlan"
+	laser "rosebot"
+	firstturn = 1
+	
+	%command = drivePlan[plan]
+	%direc = drivePlan[plan+1] %SOMETHING WRONG HERE. THE ENTRY IS NUMBER OF ROWS NOT DIRECTION
+	
+	command = drivePlan[plan]
+	if(command == F) "end"
+	
+	command = abs(command) % next row: 1, skip 1 row: 2, skip 2 rows: 3
+	direc = drivePlan[plan]/abs(drivePlan[plan]) % right: -1, left: 1
+
+	stop
+
+	plan = plan+1
+
+	%%% exit the row and turn
+	driveon px py pth "rad" @v preTurnVel :($drivendist>0.1) % NEW
+	Vel = turnVel
+
+	odoT = $odoth
+
+	correctTh = odoT
+
+	if(abs(odoT) < 90) "NoTHCorrection"
+	acth = abs(correctTh)
+	correctTh = correctTh / acth * (acth - 180)
+	goto "ChooseDirection"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "NoTHCorrection" %NEW
+	correctTh = 0
+
+label "ChooseDirection"
+	if(direc == 1) "labell"
+	if(direc == -1) "labelr"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% turnr led
+label "labelr"
+	setoutput "ledMode" 4
+	goto "postLed"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% turnl led 
+label "labell"
+	setoutput "ledMode" 2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "postLed"
+	if(command == 1) "turn" % makes normal turn if no row is skipped
+
+	%first turn
+	ang = direc * 80 - direc * correctTh
+	turnr 0.35 ang @v turnVel :($cmdtime > 15) %CHANGED TURN RADIUS TO 0.35 INSTEAD OF 0.2
+
+	if (1-firstturn) "stopR" %finish headland driving
+
+	% Need stop for laser update
+	stop
+	fwdDist = (command-1) * 0.75 +0.2 % hardcoding distance the robot must travel to skip rows (subject for tuning!)
+	saveOdoy = $odoy
+	saveOdox = $odox
+	goto "driveOffset"
+
+
+%%%%%%%%% driveOffset %%%%%%%%%%%
+label "driveOffset"
+	setoutput "ledMode" 0
+	laser "rosebot"
+	sideSelection = direc %+1 %WHY ADD 1 TO DIRECTION?
+	stringcat "rosebot correctPath side="sideSelection" "
+
+	laser "$string"
+	yc = $l1 %WHAT IS LASER VALUE 1?
+	eval yc
+	if(abs(yc) == 0.0) "skipCorr" %skips correction of y parameter
+	yc = 0.7*direc*(-0.65 + abs(yc))
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "skipCorr"
+	trans $odox $odoy $odoth 5 yc 0 %WHY THIS TRANSFORMATION?
+	driveon $res0 $res1 $res2 "rad" @v coastVel :($drivendist>0.02)
+	diff = sqrt(($odox-saveOdox)*($odox-saveOdox)+($odoy-saveOdoy)*($odoy-saveOdoy))
+	eval diff
+	if(diff >= fwdDist) "turnIntoRow"
+	goto "driveOffset"
+
+
+%%%%%%%%% turnIntoRow %%%%%%%%%%%
+label "turnIntoRow"
+	firstturn=0
+	goto "ChooseDirection"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% turn when one row %%%%%%%
+label "turn"
+	laser "rosebot"
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	odoDist = $ododist
+
+	if(direc == 1) "labellsimple"
+	if(direc == -1) "labelrsimple"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% turnr led
+label "labelrsimple"
+	setoutput "ledMode" 4
+	goto "postLedSimple"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% turnl led
+	label "labellsimple"
+	setoutput "ledMode" 2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+label "postLedSimple"
+	turnang = sign*160
+	turnr 0.35 turnang @v turnVel :($cmdtime > 20)
+	turnfinishedX = $odox
+
+	%%%turn variables
+	turncnt=turncnt+1
+	sign = 1*sign
+
+%%%%%%%%%% Turn loop %%%%%%%%%%%%
+label "turnR"
+	laser "rosebot"
+	id = id + 1
+	stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+	laser "$string"
+	wait 1 :($l9==id)
+
+	%Check for hole or if the robot has turned 180
+	if($l7 == 4) "stopR"
+	if($ododist < odoDist+1)  "turnR"
+	stop
+	wait 2
+	setoutput "ledMode" 0
+	fwd -0.1 @v0.3 :($cmdtime > 10)
+
+	eval $joyoverride
+	backbut = $joyoverride
+	if (backbut == 1) "ini"
+
+	goto "turnR"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% Hole found %%%%%%%%%%%
+label "stopR"
+	laser "rosebot"
+	eval $l7
+	eval $odoth
+	stop
+
+	%Set values to default
+	rowStartX = $odox
+	rowStartY = $odoy
+	Vel = fwdVel
+	firstm = 0
+	goto "start"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% end %%%%%%%%%%%%%%%%
+label "end"
+	setoutput "ledMode" 16
+	play "bender.wav"
+	fwd 0
+	wait 25
+	setoutput "ledMode" 0
+	stop
+	%stop logging
+	eval rowStartX
+	eval rowStartY
+	eval xo
+	eval yo
+	eval disto
+
+	laser "scanset logclose"
+	laser "odopose log=false"

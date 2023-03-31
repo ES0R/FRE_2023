@@ -1,0 +1,18 @@
+pi=3.14159265359
+
+odoT = -178
+
+if (abs(odoT) < 90) "NoTHCorrection"
+%odoT = atan2(sin(odoT*pi/180),cos(odoT*pi/180))*180/pi
+%eval odoT
+
+if (odoT<0) "adjustUP"
+odoT = odoT - 180
+goto "NoTHCorrection"
+
+label "adjustUP"
+odoT = odoT + 180
+
+label "NoTHCorrection"
+
+

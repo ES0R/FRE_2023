@@ -1,0 +1,5 @@
+set "$odoth" 0
+
+drive @v0.5 : ($drivendist>4)
+
+stop

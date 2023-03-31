@@ -1,0 +1,4 @@
+set "$odoth" 0
+fwd -5.0 @v 0.4
+stop
+

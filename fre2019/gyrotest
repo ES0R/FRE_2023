@@ -1,0 +1,24 @@
+wait 1
+
+setoutput "cruizreset" 1
+wait 1
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+wait 1
+log "$odox" "$odoy" "$odoth" "$time"
+
+
+wait 1
+
+%fwd 1 :($cmdtime > 15)
+
+drive 0 0 0 @v 0.8 :($drivendist>0.5)
+
+drive 0 0 0 @v 0.0 :($cmdtime>1)
+
+%eval $odoth
+turnr 0.25 120 @v 0.6
+%eval $odoth
+stop
+wait 2

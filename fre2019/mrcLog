@@ -1,0 +1,23 @@
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+wait 1
+
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+
+
+%% above for logging, below for replaying
+
+%laser "push t=0.5 cmd='scanset step' n=100"
+
+%laser "rosebot PFreset"
+
+%laser "push t=0.5 cmd='rosebot SLAM'"
+
+wait 10000

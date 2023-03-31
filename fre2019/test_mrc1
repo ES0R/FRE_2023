@@ -1,0 +1,6 @@
+vision "hallo"
+wait 1
+eval $vis1
+eval $vis2
+eval $vis3
+eval $vis4

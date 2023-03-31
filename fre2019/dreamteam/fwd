@@ -1,0 +1,11 @@
+set "$odoth" 0
+turnr 0.6 90
+drive 0.6 0 90  @v 1.0 :($drivendist>10.0)
+fwd 0.5
+drive 0.6 0 90  @v -1.0 :($drivendist>10.0)
+fwd -0.5
+
+
+stop
+
+

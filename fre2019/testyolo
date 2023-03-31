@@ -1,0 +1,21 @@
+pi=3.141592
+
+th = -173*pi/180
+pth = -190*pi/180
+
+
+%dth = atan2(sin(pth),cos(pth))-atan2(sin(th),cos(th))
+dth = pth-th
+dth = sqrt(dth*dth)
+
+if (dth > pi/2) "adjustDTH"
+
+goto "driveon"
+
+
+label "adjustDTH"
+	dth = dth - 2*pi
+	dth = sqrt(dth*dth)
+
+label "driveon"
+    eval dth*180/pi

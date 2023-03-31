@@ -1,0 +1,51 @@
+Debug file for the robot initialization
+---------------------------------------
+Fri Mar 26 14:10:29 2021
+---------------------------------------
+
+Module : robotinfo
+   type      ackerman     enum number        1
+   name      fieldrobot
+
+Module : odometry
+   cl           0.000007
+   cr           0.000007
+   w            0.300000
+   robotlength  0.360000
+   ts           0.010000
+   maxtick         10000
+   control             1
+   enctype             0
+
+Module : motion control
+   ts           0.030000
+   line_gain    0.050000
+   line_tau     10.000000
+   line_alfa    0.300000
+   wall_gain    1.000000
+   wall_tau     0.700000
+   wall_alfa    0.200000
+   gain         0.000000
+   tau          0.160000
+   alfa         0.200000
+   drive_kangle 2.200000
+   drive_kdist  4.200000
+   w            0.207000
+   robotlength  0.350000
+   lim          0.200000
+   stopdist     0.180000
+   alarmdist    0.100000
+   velcmd       0.300000
+   acccmd       0.500000
+   nolinedist   0.200000
+
+Module : motor control
+   velscalel    1847.000000
+   velscaler    1847.000000
+   kp           66.000000
+   ki           10.000000
+
+Module : line sensor
+   size                8
+   k_filt       0.800000
+

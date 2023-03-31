@@ -1,0 +1,50 @@
+wait 1
+
+pi=3.141592
+
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+laser "var lobst.minPointsInLine=8"
+laser "var lobst.enableSplit=true"
+laser "var lobst.minsplitcnt=2"
+laser "var lobst.splitdist=0.5"
+laser "var rosebot.lineAngleInterval='-105,-75'"
+laser "var rosebot.lineRmax=1.0"
+laser "var rosebot.holeAngleAllowed=180"
+
+x = 0
+y = 0
+th = 0
+
+Vel = 1
+
+%%%%%%%%%%%% start logging %%%%%%%%%%%%%
+log "$time"
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+wait 1
+
+setoutput "ledMode" 0
+
+
+
+turnr 0.25 -180 @v 0.5 :($cmdtime > 20)
+
+
+stop
+
+
+laser "scanset logclose"
+laser "odopose log=false"

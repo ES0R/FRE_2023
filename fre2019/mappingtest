@@ -1,0 +1,50 @@
+wait 2
+setoutput "cruizreset" 1
+wait 2
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+cameraOffest = 0.54
+vision "hallo"
+
+label "badmeas"
+wait 0.1
+goto "checkVision"
+
+
+
+%%%%%%%%% check vision %%%%%%%
+label "checkVision"
+type = $vis1
+coordX = $vis2 + cameraOffest 
+coordY = $vis3 
+flag = $vis4
+if (flag==1) "badmeas"
+if (type== 0) "badmeas"
+if (type==3) "badmeas"
+if (coordY>2) "badmeas"
+if (coordX>2.5)"badmeas"
+
+
+
+
+
+x= $odox
+y= $odoy
+th = $odoth
+trans x y th coordX coordY 0
+
+
+finalX= $res0
+finalY= $res1
+eval finalX
+eval finalY
+eval flag
+localX= $res0
+localY= $res1
+obstRow = 1
+stringcat "rosebot obstacle2 xPos="finalX" yPos="finalY" type="type" "
+laser "$string"
+wait 1
+goto "checkVision"

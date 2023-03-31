@@ -1,0 +1,382 @@
+%%%%%%%%%%%%%%%%%%%%%%% task2 %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% DTUni-Corn %%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%% constants %%%%%%%%%%%%%
+fwdVel = 0.7
+bckVel = -0.8
+slowVel = 0.6
+turnVel = 0.8
+
+fwdLaser = 1
+bckLaser = 0
+
+fwdLasX = 0.46
+bckLasX = -0.17
+
+F=1000
+R=-1
+L=1
+
+slowdist= 11
+
+pi=3.141592
+
+%%%%%%%%%%%% variables %%%%%%%%%%%%%
+id=0
+plan=0
+zero=0
+rowStartX=$odox
+rowStartY=$odoy 
+backward=0
+rowcnt=1
+offsetcnt=0
+obstcnt=0
+
+Vel = fwdVel
+Las = fwdLaser
+lasX = fwdLasX
+
+command=2
+direc=R
+
+x=0
+y=0
+th=0
+
+%%%%%%%%%%%%%%%%% commando %%%%%%%%%%%%%%%%%%%%%%%%%
+%Number is how many rows to pass before entering a row
+%Letter is direction to turn when exiting a row
+array "drivePlan" 15  
+drivePlan[0]=2
+drivePlan[1]=R
+drivePlan[2]=3
+drivePlan[3]=L
+drivePlan[4]=1
+drivePlan[5]=R
+drivePlan[6]=2
+drivePlan[7]=R
+drivePlan[8]=4
+drivePlan[9]=R
+drivePlan[10]=F
+drivePlan[11]=F
+
+%%%%%%%%%%%% plugin variables %%%%%%%%%%%%%
+%routeinput "mrc" "odoconnect" "dth" "$cruizrate"
+%set "$gyro1off" -4.92
+%set "$gyro1gain" -0.001279
+%set "$gyrotype" 1
+%set "$odocontrol" 1
+
+laser "var lobst.minPointsInLine=20"
+laser "var lobst.enableSplit=true"
+laser "var lobst.minsplitcnt=2"
+laser "var lobst.splitdist=0.5"
+laser "var rosebot.lineAngleInterval='-105,-75'"
+laser "var rosebot.lineRmax=1.0"
+laser "var rosebot.holeAngleAllowed=180"
+
+wait 1
+
+
+%%%%%%%%%%%% holetypes %%%%%%%%%%%%%
+% 0 = dead end
+% 1 = free space 
+% 2 = right wall
+% 3 = left wall
+% 4 = hole
+% 5 = ignore hole
+
+
+%%%%%%%%%%%% start %%%%%%%%%%%%%
+label "start"
+
+id = id + 1
+
+stringcat "rosebot device="Las" laserx="lasX" id="id" backward="backward""
+laser "$string"
+eval Las
+wait 1 :($l9==id)
+
+%printing returned values 
+eval $l1
+eval $l2
+eval $l3
+eval $l4
+eval $l5
+eval $l6
+eval $l7
+eval $l8
+eval $l9
+eval id
+
+x=$l4
+y=$l5 
+th=$l6
+holetype = $l7
+eval holetype
+eval x
+eval y
+eval th
+
+if(holetype==0 & Las==fwdLaser) "CheckObst"
+zero = 0
+%decide which mode to enter
+switch(holetype)
+case 1 
+	goto "drivePlan"
+case 2
+	goto "rowdrive"
+case 3
+	goto "rowdrive"
+case 4 
+	goto "rowdrive"
+case 5
+	goto "rowdrive"
+endswitch
+goto "start"
+
+%%%%%%%%%%%% Obstacle Check %%%%%%%%%%%
+label "CheckObst"
+obstcnt=obstcnt+1
+if (obstcnt == 3 )"ObstCheck"
+
+distObst=$ododist
+
+label "driveonObst"
+Vel=slowVel
+stringcat "rosebot device="Las" laserx="lasX" id="id" backward="backward""
+laser "$string"
+x=$l4
+y=$l5 
+th=$l6
+holetype = $l7
+driveon x y th "rad" @v Vel :($drivendist>0.03)
+drivendistObst=$ododist-distObst
+
+
+if(holetype == 0 & drivendistObst>0.05) "CheckObst"
+if(drivendistObst<0.15) "driveonObst"
+Vel=fwdVel
+obstcnt=0
+goto "start"
+
+
+label "ObstCheck"
+stop
+laser "mrclocate obstpoint=20"
+wait 1
+eval $l8
+if($l8==0) "start"
+goto "rowbackdrive"
+
+%%%%%%%%%%%% drivePlan %%%%%%%%%%%%
+label "drivePlan"
+command = drivePlan[plan]
+direc = drivePlan[plan+1]
+
+stop
+% drive front speed
+if(Las==bckLaser) "backTurn"
+
+if(command == 0) "sameRow"
+if(command == F) "end"
+
+plan = plan+2
+
+eval plan
+eval command
+eval direc
+
+Vel=fwdVel
+fwd 0.6 @v Vel
+Vel=turnVel
+ang=90*direc
+turnr 0.5 ang @v Vel
+%drive :(1) Need stop for laser update
+stop
+if(command == 1) "turnIntoRow"
+goto "findRow"
+
+%%%%%%%%%%%% rowdrive %%%%%%%%%%%%%
+label "rowdrive"
+xo = $odox-rowStartX
+yo = $odoy-rowStartY
+disto = sqrt(xo*xo + yo*yo)
+eval xo
+eval yo
+eval disto
+if(disto>slowdist) "speedcontrol"
+
+label "driveon"
+
+driveon x y th "rad" @v Vel :($drivendist>0.03)
+goto "start"
+
+label"speedcontrol"
+if(Vel<0) "driveon"
+Vel = slowVel
+goto "driveon"
+
+%%%%%%%%%%%% rowbackdrive %%%%%%%%%%%
+label "rowbackdrive"
+
+Las=bckLaser % laser scanner 0 
+Vel=bckVel % drive back speed
+lasX = bckLasX
+backward=1
+goto "start"
+
+label "rowfrontdrive" %special encounter
+las=fwdLaser
+lasX=fwdLasX
+Vel= fwdVel 
+goto "start"
+
+%%%%%%%%%%%%%%%%%% findRow %%%%%%%%%%%%%%%%%%
+label "findRow"
+call "checkrow"
+
+dist = sqrt($l1*$l1+$l2*$l2)
+th = atan2($l2,$l1)
+eval $l1
+eval $l2
+eval dist
+eval th
+eval command
+eval direc
+eval rowcnt
+
+if(dist>1) "driveOffset"
+if(dist<0.2) "driveOffset"
+
+if(dist>0.45) "drivetoRow"
+
+goto "findRow"
+
+%%%%%%%%%%% driveOffset %%%%%%%%%%%%%%%%
+label "driveOffset"
+Vel=slowVel
+fwd 0.1 @v Vel
+
+offsetcnt=offsetcnt+1
+
+if(offsetcnt==2) "rowOffset"
+goto "findRow"
+
+label "rowOffset"
+fwd 0.4 @v Vel
+rowcnt=rowcnt+1
+if(rowcnt==command) "turnIntoRow"
+offsetcnt=0
+goto "findRow"
+
+%%%%%%%%%%%% drivetoRow %%%%%%%%%%%%%%%
+label "drivetoRow"
+
+Vel=slowVel
+trans $odox $odoy $odoth $l1 $l2 th
+drive $res0 $res1 $res2 "rad" @v Vel :($drivendist>(dist-0.15))
+
+rowcnt=rowcnt+1
+if(rowcnt==command) "turnIntoRow"
+
+stop
+wait 5
+
+goto "findRow"
+
+%%%%%%%%%% turnIntoRow %%%%%%%%%%%%%%%%
+label "turnIntoRow"
+
+rowcnt=1
+offsetcnt=0
+odoDist = $ododist
+
+turn90 = direc*68
+turnV = direc*(90-68)
+
+turnr 0.53 turn90 @v Vel
+turnr 0.53 turnV @v Vel : (1)
+
+%Turn loop
+label "turnR"
+id = id + 1
+stringcat "rosebot device="Las" laserx="lasX" id="id" backward=0"
+laser "$string"
+wait 1 :($l9==id)
+
+%Check for hole or if the robot has turned 180
+if($l7 == 4) "stopR"
+if($l7 == 0) "deadend"
+if($ododist < odoDist+1) "turnR"
+stop
+wait 5
+fwd 0.1 @v0.3
+goto "turnR"
+
+
+label "deadend"
+stop
+wait 5
+fwd -0.1 @v0.3
+goto "turnR"
+
+%Hole found
+label "stopR"
+Vel=fwdVel
+rowStartX = $odox
+rowStartY = $odoy
+
+goto "start"
+
+%%%%%%% checkrow %%%%%%%%%%%%%%%%%%%%%%
+label "checkrow"
+%stringcat "lobst make device="fwdLaser" silent"
+%laser "$string"
+id=id+1
+wait 2
+stringcat "rosebot findrow device="fwdLaser" id="id
+laser "$string"
+wait 1:($l9==id)
+wait 2
+
+return
+
+%%%%%%%%%%%% back turn %%%%%%%%%%%%%
+label "backTurn"
+Las=fwdLaser % laser scanner 1
+backward=0
+lasX =fwdLasX
+Vel=turnVel
+
+plan = plan+1
+if(command ==0) "start" 
+if(command ==F) "end"
+plan = plan+1
+fwd -0.8 @v Vel
+ang=-90*direc 
+turnr 0.35 ang @v Vel
+%drive :(1) Need stop for laser
+stop
+
+if (command == 1) "turnIntoRow"
+goto "findRow"
+
+%%%%%%%%%%%%%%% sameRow %%%%%%%%%%%%%%%%%%
+label "sameRow"
+
+Vel=fwdVel
+plan = plan+1
+fwd 0.2 @v Vel
+rowStartX = $odox
+rowStartY = $odoy
+
+goto "rowbackdrive"
+
+%%%%%%%%%%%% end %%%%%%%%%%%%%
+label "end"
+stop
+%stop logging
+laser "scanset logclose"
+laser "odopose log=false"

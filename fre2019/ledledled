@@ -1,0 +1,4 @@
+k = 32
+
+eval k
+setoutput "ledMode" k :($cmdtime > 20)

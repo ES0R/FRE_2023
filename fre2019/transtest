@@ -1,0 +1,14 @@
+x=1
+y=2
+th=30
+
+
+xx = 2
+
+yy = 3
+
+thh = 5
+
+trans x y th xx yy thh
+
+wait 1

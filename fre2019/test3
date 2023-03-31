@@ -1,0 +1,11 @@
+
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+label "vision"
+

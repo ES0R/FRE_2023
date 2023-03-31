@@ -1,0 +1,8 @@
+
+wait 1
+log "$odox" "$odoy" "$odoth"
+
+setoutput "cruizreset" 1
+wait 1
+set "$odoth" 0
+wait 5

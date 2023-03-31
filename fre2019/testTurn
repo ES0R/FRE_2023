@@ -1,0 +1,15 @@
+
+stringcat "rosebot saveObstacles xPos="0.8" yPos="0.3" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+stringcat "rosebot saveObstacles xPos="0.85" yPos="0.32" type="1" "
+wait 1
+laser "$string" 
+wait 1
+
+stringcat "rosebot saveObstacles xPos="0.83" yPos="0.31" type="1" "
+wait 1
+laser "$string" 
+wait 1

@@ -1,0 +1,119 @@
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% task1 %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% DTUni-Corn %%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%% constants %%%%%%%%%%%%%
+%Startturn: -1 = right, 1 = left
+sign = -1
+
+%turn number of rows-1
+turnlim=15
+
+fwdVel = 0.6
+bckVel = -0.5
+slowVel= 0.2
+turnVel = 0.4
+
+fwdLaser = 1
+bckLaser = 0
+
+fwdLasX = 0.46
+bckLasX = -0.17
+
+slowdist= 11
+
+pi=3.141592
+
+vision "hallo"
+%%%%%%%%%%%% variables %%%%%%%%%%%%%
+id= 0
+turncnt= 1
+rowStartX = $odox
+rowStartY = $odoy
+turnfinishedX = $odox
+
+Vel = fwdVel
+Las = fwdLaser
+lasX = fwdLasX
+
+x=0
+y=0
+th=0
+
+
+%%%%%%%%%%%% plugin variables %%%%%%%%%%%%%
+wait 1
+setoutput "cruizreset" 1
+wait 1
+%%% odometry set %%%
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+
+
+
+
+wait 5
+
+label "vision"
+type = $vis1
+ox = $vis2 + 0.54
+oy = $vis3
+flag = $vis4
+setoutput "ledMode" 0
+eval type
+eval ox
+eval oy
+eval flag
+if (type == 0   ) "badmeas"
+if (flag == 1) "badmeas"
+
+eval $odox
+eval $odoy
+eval $odoth
+trans $odox $odoy $odoth ox oy 0
+eval $l8
+
+finalX = $res0
+finalY = $res1
+
+stringcat "rosebot obstacle2 xPos="finalX" yPos="finalY" type="type" "
+
+laser "$string" 
+eval $l8
+if ($l8 == 1) "weedfound"
+if ($l8 == 2) "obstaclefound"
+goto "vision"
+
+
+
+label "badmeas"
+wait 0.5
+goto "vision"
+
+
+label "weedfound"
+wait 1
+setoutput "ledMode" 16
+wait 3
+setoutput "ledMode" 0
+wait 1
+set "$l8" 0
+wait 1
+goto "vision"
+
+label "obstaclefound"
+wait 1
+setoutput "ledMode" 4
+wait 3
+setoutput "ledMode" 0
+wait 1
+set "$l8" 0
+wait 1
+
+goto "vision"

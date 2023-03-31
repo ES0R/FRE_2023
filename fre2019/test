@@ -1,0 +1,6 @@
+wait 2
+
+log "$time" "$odox" "$odoy" "$odoth"
+
+wait 10
+stop
