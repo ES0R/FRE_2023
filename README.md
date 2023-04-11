@@ -4,23 +4,15 @@
 
 ```
 .
-├── _config.yml
-├── _drafts
-│   ├── begin-with-the-crazy-ideas. Textile
-│   └── on-simplicity-in-technology. Markdown
-├── _includes
-│   ├── footer.html
-│   └── header.html
-├── _layouts
-│   ├── default.html
-│   └── post.html
-├── _posts
-│   ├── 2007-10-29-why-every-programmer-should-play-nethack.textile
-│   └── 2009-04-26-barcamp-boston-4-roundup.textile
-├── _data
-│   └── members.yml
-├── _site
-└── index.html
+├── 0_SMR_OLD
+├── 1_src
+│   ├── 0_SMR
+│   ├── 1_CV
+├── 2_doc
+│   ├── 0_CAD
+│   ├── 1_Documentation
+├── README.md
+└── .gitignore
 ```
 
 
