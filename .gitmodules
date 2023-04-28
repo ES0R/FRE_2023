@@ -1,0 +1,3 @@
+[submodule "1_src/1_CV/1_src/1_CV/darknet"]
+	path = 1_src/1_CV/1_src/1_CV/darknet
+	url = https://github.com/pjreddie/darknet.git
