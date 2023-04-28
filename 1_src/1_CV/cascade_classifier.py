@@ -32,11 +32,12 @@ min_hit_rate = 0.995
 max_false_alarm_rate = 0.5
 num_threads = 4
 
-
+# Path to positive and negative samples
+pos_file = 'positive_samples.txt'
+neg_file = 'negative_samples.txt'
 
 # Read in positive samples for deers
-
-deer_sample_file = "deer_samples.txt"
+deer_samples_file = "deer_samples.txt"
 
 with open(deer_samples_file, 'r') as f:
     deer_samples = f.read().splitlines()
