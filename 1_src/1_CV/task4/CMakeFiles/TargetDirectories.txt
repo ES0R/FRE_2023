@@ -1,0 +1,3 @@
+/home/er0s/Documents/FRE_2023/1_src/1_CV/task4/CMakeFiles/SIFT.dir
+/home/er0s/Documents/FRE_2023/1_src/1_CV/task4/CMakeFiles/edit_cache.dir
+/home/er0s/Documents/FRE_2023/1_src/1_CV/task4/CMakeFiles/rebuild_cache.dir
