@@ -1,12 +1,13 @@
-# Minimum version of CMake required to build this project
 cmake_minimum_required(VERSION 3.0)
+project( SIFT )
+find_package( OpenCV REQUIRED )
 
-# Name of the project
-project(SIFT)
+#
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable(Project src/main.cpp)
+#
+file(GLOB SOURCES "src/*.cpp")
 
-
-# Add a library to this build. The name of the library is MyLibrary and it
-# consists of only the MyLibrary.cpp file
-#add_library(MyLibrary src/MyLibrary.cpp)
+#
+add_executable( SIFT ${SOURCES})
+target_link_libraries( SIFT ${OpenCV_LIBS} )
