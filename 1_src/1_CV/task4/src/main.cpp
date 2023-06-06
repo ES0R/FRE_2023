@@ -25,6 +25,8 @@ int main(int argc, char** argv)
     std::vector<cv::Mat> images;
     std::vector<std::string> labels;
 
+    std::string best_fit_label;
+
     for (const auto & entry : fs::directory_iterator(folder)) {
         images.push_back(imread(entry.path()));
 
@@ -98,16 +100,18 @@ int main(int argc, char** argv)
         if (match > max_match) {
             max_match = match;
             best_fit = image;
+            best_fit_label = entry.path().filename().string();
 
             Mat img_matches;
             drawMatches( input, keypoints_input, best_fit, keypoints_image,
-                         good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
-                         std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+                     good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
+                     std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
             imshow("Best fit so far", image);
         }
     }
 
+    std::cout << "Best fit image: " << best_fit_label << std::endl;
     waitKey(0);
 
     return 0;
