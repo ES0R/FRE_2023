@@ -2,7 +2,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <stdio.h>
-#include "../inc/utils.hpp"
 #include <filesystem>
 #include <vector>
 
@@ -17,8 +16,8 @@ int main(int argc, char** argv)
 {
     //Check input
     if (argc != 2) {
-    printf("Invalid input - No argument given\n");
-    return -1;
+        printf("Invalid input - No argument given\n");
+        return -1;
     }
 
     //Load images from `images` and make labels
@@ -85,18 +84,24 @@ int main(int argc, char** argv)
         detector->detectAndCompute(image, noArray(), keypoints_image, descriptors_image);
 
         
-        std::vector< DMatch > matches;
-        matcher.match( descriptors_input, descriptors_image, matches );
+        std::vector< std::vector<DMatch> > knn_matches;
+        matcher.knnMatch(descriptors_input, descriptors_image, knn_matches, 2);
 
-        
-        double match = matches.size();
+        std::vector<DMatch> good_matches;
+        for (size_t i = 0; i < knn_matches.size(); i++) {
+            if (knn_matches[i][0].distance < 0.8 * knn_matches[i][1].distance) {
+                good_matches.push_back(knn_matches[i][0]);
+            }
+        }
+
+        double match = good_matches.size();
         if (match > max_match) {
             max_match = match;
             best_fit = image;
 
             Mat img_matches;
             drawMatches( input, keypoints_input, best_fit, keypoints_image,
-                         matches, img_matches, Scalar::all(-1), Scalar::all(-1),
+                         good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
                          std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
             imshow("Best fit so far", image);
