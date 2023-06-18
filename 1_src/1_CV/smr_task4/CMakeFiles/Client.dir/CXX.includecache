@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/src/Client/simple_client_main.cpp
+ClientSocket.h
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/src/Client/ClientSocket.h
+SocketException.h
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/src/Client/SocketException.h
+iostream
+-
+string
+-
+unistd.h
+-
+
+inc/ClientSocket.h
+Socket.h
+inc/Socket.h
+
+inc/Socket.h
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+netdb.h
+-
+unistd.h
+-
+string
+-
+arpa/inet.h
+-
+
+inc/SocketException.h
+string
+-
+

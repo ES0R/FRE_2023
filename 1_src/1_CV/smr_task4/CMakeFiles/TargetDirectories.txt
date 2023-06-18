@@ -1,0 +1,4 @@
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/CMakeFiles/rebuild_cache.dir
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/CMakeFiles/Client.dir
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/CMakeFiles/edit_cache.dir
+/home/local/Documents/FRE_2023/1_src/1_CV/smr_task4/CMakeFiles/Server.dir

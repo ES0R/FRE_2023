@@ -1,0 +1,3 @@
+%vision "Test message."
+wait 1
+eval $vis1
